@@ -1,15 +1,36 @@
 workflows:
   android-release:
-    name: Android Release
+    name: Fossify Gallery Build
 
     max_build_duration: 60
 
     environment:
       java: 17
 
+    cache:
+      cache_paths:
+        - ~/.gradle/caches
+        - ~/.gradle/wrapper
+
     scripts:
-      - chmod +x gradlew
-      - ./gradlew assembleDebug
+      - name: Create local.properties
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/local.properties"
+
+      - name: Grant execute permission
+        script: |
+          chmod +x gradlew
+
+      - name: Build Debug APK
+        script: |
+          ./gradlew assembleDebug --stacktrace
 
     artifacts:
-      - app/build/outputs/apk/debug/*.apk
+      - "**/build/outputs/apk/**/*.apk"
+      - "**/build/reports/**/*"
+      - "**/build/outputs/logs/**/*"
+
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
